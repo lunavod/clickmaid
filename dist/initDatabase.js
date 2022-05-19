@@ -12,8 +12,15 @@ const initDatabase = async () => {
         (0, logger_1.error)(`Schema not found in ${schemaFilePath}`);
         return;
     }
-    const queries = await fs.readFile(schemaFilePath, 'utf8');
-    console.log(await (0, client_1.runQuery)(queries));
+    const raw = await fs.readFile(schemaFilePath, 'utf8');
+    const queries = raw
+        .slice(raw.indexOf('CREATE TABLE IF NOT EXISTS'), raw.length)
+        .split('CREATE TABLE IF NOT EXISTS')
+        .filter((i) => i.length)
+        .map((s) => 'CREATE TABLE IF NOT EXISTS' + s);
+    for (const query of queries) {
+        await (0, client_1.runQuery)(query);
+    }
 };
 exports.initDatabase = initDatabase;
 //# sourceMappingURL=initDatabase.js.map
